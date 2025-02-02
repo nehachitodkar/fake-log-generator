@@ -59,16 +59,15 @@ else:
 outFileName = output_dir + outFileName
 print(f'Output file: {outFileName}')
 
-match output_type:
-    case 'LOG':
-        f = open(outFileName, 'a')
-    case 'GZ':
-        f = gzip.open(f'{outFileName}.gz', 'w')
-    case 'CONSOLE':
-        # TODO: Add implementation
-        pass
-    case _:
-        f = sys.stdout
+if output_type == 'LOG':
+    f = open(outFileName, 'a')
+elif output_type == 'GZ':
+    f = gzip.open(f'{outFileName}.gz', 'w')
+elif output_type == 'CONSOLE':
+    # TODO: Add implementation
+    pass
+else:
+    f = sys.stdout
 
 response = ["200", "404", "500", "301"]
 
