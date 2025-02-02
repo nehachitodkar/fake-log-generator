@@ -14,12 +14,11 @@ import log_write_sleep
 
 local = get_localzone()
 
-
 # todo:
 # allow writing different patterns (Common Log, Apache Error log etc)
 # log rotation
 
-parser = argparse.ArgumentParser(__file__, description="Fake Apache Log Generator")
+parser = argparse.ArgumentParser(__file__, description="Fake Apache and Nginx Log Generator")
 parser.add_argument("--output", "-o", dest='output_type', help="Write to a Log file, a gzip file or to STDOUT",
                     choices=['LOG', 'GZ', 'CONSOLE'])
 parser.add_argument("--num", "-n", dest='num_lines', help="Number of lines to generate (0 for infinite)", type=int,
@@ -31,6 +30,8 @@ parser.add_argument('--output-dir', '-d', help='Output directory for log files',
 parser.add_argument('--filename', '-f', help='Log file name', default="", type=str)
 parser.add_argument('--min-delay', help='Minimum delay between writes in milliseconds', default=0, type=int)
 parser.add_argument('--max-delay', help='Maximum delay between writes in milliseconds', default=0, type=int)
+parser.add_argument('--log-type', '-t', dest='log_type', help="Type of log to generate", choices=['APACHE', 'NGINX'],
+                    default='APACHE')
 
 args = parser.parse_args()
 
@@ -41,6 +42,7 @@ min_write_delay = args.min_delay
 max_write_delay = args.max_delay
 output_filename = args.filename
 output_dir = log_write_sleep.write_log_directory(args.output_dir)
+log_type = args.log_type
 
 faker = Faker()
 
@@ -104,7 +106,15 @@ while flag:
     byt = int(random.gauss(5000, 50))
     referer = faker.uri()
     useragent = rng.choice(ualist, p=[0.5, 0.3, 0.1, 0.05, 0.05])()
-    f.write('%s - - [%s %s] "%s %s HTTP/1.0" %s %s "%s" "%s"\n' % (ip, dt, tz, vrb, uri, resp, byt, referer, useragent))
+
+    if log_type == 'APACHE':
+        log_entry = '%s - - [%s %s] "%s %s HTTP/1.0" %s %s "%s" "%s"\n' % (
+            ip, dt, tz, vrb, uri, resp, byt, referer, useragent)
+    elif log_type == 'NGINX':
+        log_entry = '%s - - [%s %s] "%s %s HTTP/1.1" %s %s "%s" "%s"\n' % (
+            ip, dt, tz, vrb, uri, resp, byt, referer, useragent)
+
+    f.write(log_entry)
 
     log_lines = log_lines - 1
     flag = log_lines != 0
