@@ -64,7 +64,7 @@ while flag:
     uri = random.choice(resources)
     if "apps" in uri:
         uri += repr(random.randint(1000, 10000))
-    resp = rng.choice(response, p=[0.9, 0.04, 0.02, 0.04])
+    resp = rng.choice(response, p=[0.7, 0.2, 0.06, 0.04])
     byt = int(random.gauss(5000, 50))
     referer = faker.uri()
     useragent = rng.choice(ualist, p=[0.5, 0.3, 0.1, 0.05, 0.05])()
